@@ -10,8 +10,8 @@ app.use(express.json())
 // const JWT_SECRET = "fjdsnfkjdbljb"
 
 app.post('/signup', async(req, res) => {
-    const data = CreateUserSchema.safeParse(req.body)
 
+    const data = CreateUserSchema.safeParse(req.body)
     if(!data.success){
         res.json({
             message: "Incorret inputs"
@@ -107,4 +107,6 @@ app.post('/room', middleware, async(req, res) => {
     }
 })
 
-app.listen(3000)
+app.listen(3000, () => {
+    console.log('Server running')
+})
