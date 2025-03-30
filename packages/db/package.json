@@ -1,13 +1,12 @@
 {
-  "name": "@repo/backend-common",
+  "name": "@repo/db",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "exports": {
-    "./config": "./src/index.ts"
+    "./client": "./src/index.ts"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*"
@@ -17,6 +16,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@types/node": "^22.13.14"
+    "@prisma/client": "6.5.0",
+    "prisma": "^6.5.0"
   }
 }
