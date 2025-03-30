@@ -107,6 +107,24 @@ app.post('/room', middleware, async(req, res) => {
     }
 })
 
+app.get('/chats/:roomId',middleware, async(req, res) => {
+    const roomId = Number(req.params.roomId)
+
+    const msgs = await prismClient.chat.findMany({
+        where: {
+            roomId: roomId
+        },
+        orderBy: {
+            id: "desc"
+        },
+        take: 50
+    })
+
+    res.status(200).json({
+        messages: msgs
+    })
+})
+
 app.listen(3000, () => {
     console.log('Server running')
 })
