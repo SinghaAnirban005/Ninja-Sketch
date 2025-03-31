@@ -4,9 +4,16 @@ import jwt from "jsonwebtoken"
 import { middleware } from "./middleware.js"
 import {CreateUserSchema, SigninSchema, CreateRoomSchema} from "@repo/common/types"
 import { prismClient } from "@repo/db/client"
+import cors from "cors"
  
 const app = express()
 app.use(express.json())
+app.use(cors({
+    origin: "http://localhost:3001",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }));
 // const JWT_SECRET = "fjdsnfkjdbljb"
 
 app.post('/signup', async(req, res) => {
