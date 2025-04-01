@@ -2,6 +2,7 @@ import initDraw from "@/draw";
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./IconButton";
 import { Pencil, Circle, RectangleHorizontalIcon } from "lucide-react";
+import { Game } from "@/draw/Game";
 
 export type Tool = "pencil" | "circle" | "rect"
 
@@ -11,17 +12,27 @@ export function Canvas({roomId, socket}: {
 }) {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    
+    const [game, setGame] = useState<Game>()
     const [selectedTool, setSelectedTool] = useState<Tool>("circle")
 
+    useEffect(() => {
+        game?.setTool(selectedTool)
+    }, [selectedTool, game])
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if(canvas == null) {
-        return
-        }
-        initDraw(canvas, socket, roomId)
+        // const canvas = canvasRef.current;
+        // if(canvas == null) {
+        // return
+        // }
+        // initDraw(canvas, socket, roomId)
+        if(canvasRef.current) {
+            const g = new Game(canvasRef.current, roomId, socket)
+            setGame(g)
 
+            return () => {
+                g.destroy()
+            }
+        }
     }, [canvasRef]);
 
     return  <div style={{

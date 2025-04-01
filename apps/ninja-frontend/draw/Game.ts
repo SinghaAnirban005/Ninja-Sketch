@@ -44,6 +44,18 @@ export class Game {
         this.initMouseHandlers();
     }
 
+    destroy() {
+        this.canvas.removeEventListener("mousedown", this.mouseDownHandler)
+
+        this.canvas.removeEventListener("mouseup", this.mouseUpHandler)
+
+        this.canvas.removeEventListener("mousemove", this.mouseMoveHandler)
+    }
+
+    setTool(tool: "circle" | "pencil" | "rect") {
+        this.selectedTool = tool;
+    }
+
     async init() {
         this.existingShapes = await getExistingShapes(this.roomId);
         console.log(this.existingShapes);
