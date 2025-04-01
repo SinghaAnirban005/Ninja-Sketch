@@ -12,6 +12,12 @@ type Shape = {
     centerX: number,
     centerY: number,
     radius: number
+} | {
+    type: "pencil",
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number
 }
 
 export default async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roomId: any) {
