@@ -1,4 +1,3 @@
-import initDraw from "@/draw";
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./IconButton";
 import { Pencil, Circle, RectangleHorizontalIcon } from "lucide-react";
