@@ -2,6 +2,9 @@ import WebSocket, { WebSocketServer } from 'ws';
 import jwt, { decode, JwtPayload } from "jsonwebtoken"
 import { JWT_SECRET } from '@repo/backend-common/config'
 import { prismClient } from "@repo/db/client"
+import dotenv from "dotenv"
+import path from "path"
+import { fileURLToPath } from 'url';
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -12,6 +15,12 @@ interface User {
 }
 
 const users: User[] = []
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') }); 
 
 wss.on('connection', function connection(ws, request) {
   ws.on('error', console.error);

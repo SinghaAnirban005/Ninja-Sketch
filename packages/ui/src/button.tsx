@@ -1,23 +1,26 @@
-"use client";
+import React from 'react';
 
-import { ReactNode } from "react";
-
-interface ButtonProps {
-  variant: "primary" | "outline" | "secondary";
-  className?: string;
-  onClick?: () => void;
-  size: "lg" | "sm";
-  children: ReactNode;
-}
-
-export const Button = ({ size, variant, className, onClick, children  }: ButtonProps) => {
+//@ts-ignore
+export const Button = ({ variant = "primary", size = "lg", className = "", children, ...props }) => {
+  const baseStyles = "inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:opacity-50 disabled:pointer-events-none";
+  
+  const variants = {
+    primary: "bg-white text-black hover:bg-gray-200 focus-visible:ring-white",
+    secondary: "bg-gray-800 text-white border border-gray-700 hover:bg-gray-700 hover:border-gray-600 focus-visible:ring-gray-500",
+    outline: "border border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white focus-visible:ring-gray-500",
+    ghost: "text-gray-400 hover:text-white hover:bg-gray-800"
+  };
+  
+  const sizes = {
+    sm: "h-9 px-3 text-sm",
+    lg: "h-12 px-6 text-base"
+  };
+  
   return (
-    <button
-      className={`${className}
-        ${variant === "primary" ? "bg-primary" : variant == "secondary" ? "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80" : "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"}
-        ${size === "lg" ? "px-4 py-2" : "px-2 py-1"}
-      `}
-      onClick={onClick}
+    <button 
+    //@ts-ignore
+      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
+      {...props}
     >
       {children}
     </button>
