@@ -44,5 +44,7 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
     return <div>Connecting to Server ...</div>;
   }
 
-  return <Canvas roomId={roomId} socket={socket} authToken={authToken} />;
+  return (
+    <Canvas roomId={roomId} socket={socket} authToken={authToken as string} />
+  );
 }

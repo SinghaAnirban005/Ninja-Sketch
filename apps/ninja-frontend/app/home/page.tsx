@@ -14,10 +14,147 @@ interface Room {
   adminId: string;
 }
 
+type RoomParams = {
+  isOpen: boolean;
+  onClose: () => void;
+  onCreateRoom: (arg: string) => void;
+};
+
+const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
+  const [roomName, setRoomName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    if (!roomName.trim()) {
+      setError("Room name is required");
+      return;
+    }
+
+    setIsCreating(true);
+    setError("");
+
+    try {
+      await onCreateRoom(roomName.trim());
+      setRoomName("");
+      onClose();
+    } catch (err) {
+      setError("Failed to create room. Please try again.");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleClose = () => {
+    setRoomName("");
+    setError("");
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={handleClose}
+      ></div>
+
+      {/* Dialog */}
+      <Card className="relative w-full max-w-md p-6 border-cyan-500/30 bg-gray-900/90 backdrop-blur-md">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-white">Create New Room</h2>
+          <button
+            onClick={handleClose}
+            className="text-gray-400 hover:text-white transition-colors duration-200"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Form Content */}
+        <div className="space-y-4">
+          <div>
+            <label
+              htmlFor="roomName"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
+              Room Name
+            </label>
+            <input
+              id="roomName"
+              type="text"
+              placeholder="Enter room name..."
+              value={roomName}
+              onChange={(e) => setRoomName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
+              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-200"
+              autoFocus
+              maxLength={50}
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              {roomName.length}/50 characters
+            </div>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="text-red-400 text-sm bg-red-900/20 p-3 rounded-lg border border-red-500/20">
+              {error}
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center justify-end space-x-3 pt-2">
+            <Button
+              variant="ghost"
+              onClick={handleClose}
+              disabled={isCreating}
+              className="text-gray-400 hover:text-white hover:bg-gray-800/50"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              disabled={isCreating || !roomName.trim()}
+              className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white border-0 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isCreating ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Creating...</span>
+                </div>
+              ) : (
+                "Create Room"
+              )}
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
 export default function Dashboard() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const token = localStorage.getItem("authToken");
 
   const router = useRouter();
@@ -49,6 +186,27 @@ export default function Dashboard() {
       setIsLoading(false);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCreateRoomSubmit = async (roomName: string) => {
+    const res = await axios.post(
+      `${HTTP_URL}/room`,
+      {
+        name: roomName,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    console.log("response afer room ", res);
+
+    if (res.statusText === "OK") {
+      await fetchRooms();
     }
   };
 
@@ -89,7 +247,7 @@ export default function Dashboard() {
   };
 
   const handleCreateRoom = () => {
-    console.log("Creating new room");
+    setIsCreateDialogOpen(true);
   };
 
   return (
@@ -283,6 +441,13 @@ export default function Dashboard() {
           </svg>
         </Button>
       </div>
+
+      {/* Create Room Dialog */}
+      <CreateRoomDialog
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onCreateRoom={handleCreateRoomSubmit}
+      />
     </div>
   );
 }

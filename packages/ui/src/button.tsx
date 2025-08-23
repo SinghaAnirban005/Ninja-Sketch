@@ -4,8 +4,9 @@ type ButtonProps = {
   variant?: "primary" | "secondary" | "outline" | "ghost";
   size?: "sm" | "lg";
   className?: string;
-  onClick?: () => void;
+  onClick?: (arg?: any) => void;
   children: React.ReactNode;
+  disabled?: boolean;
 };
 
 //@ts-ignore
@@ -15,6 +16,7 @@ export const Button: React.FC<ButtonProps> = ({
   className = "",
   onClick,
   children,
+  disabled,
   ...props
 }) => {
   const baseStyles =
@@ -39,6 +41,7 @@ export const Button: React.FC<ButtonProps> = ({
       //@ts-ignore
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
       onClick={onClick}
+      disabled={disabled}
       {...props}
     >
       {children}
