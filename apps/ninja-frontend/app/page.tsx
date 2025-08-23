@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@repo/ui/button";
 import { Card } from "@repo/ui/card";
 import {
@@ -10,8 +12,11 @@ import {
   Zap,
   ArrowRight,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 function App() {
+  const router = useRouter();
+
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -43,6 +48,7 @@ function App() {
                 variant="secondary"
                 size="sm"
                 className="px-1 py-1 hover:bg-neutral-900"
+                onClick={() => router.push("/signin")}
               >
                 Sign In
               </Button>

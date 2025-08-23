@@ -2,13 +2,26 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { NextFunction, Request, Response } from "express";
 
-export const middleware = async (
+export const middleware = (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
-  const token = req.headers["authorization"] ?? "";
-  const decoded = jwt.verify(token, JWT_SECRET);
+): void => {
+  const authHeader = req.headers["authorization"];
+
+  if (!authHeader) {
+    res.status(401).json({
+      message: "NO auth header found",
+    });
+
+    return;
+  }
+
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : authHeader;
+
+  const decoded = jwt.verify(token as string, JWT_SECRET) as JwtPayload;
 
   if (decoded) {
     //@ts-ignore

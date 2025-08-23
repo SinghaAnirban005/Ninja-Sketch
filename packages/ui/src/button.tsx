@@ -1,10 +1,19 @@
 import React from "react";
 
+type ButtonProps = {
+  variant?: "primary" | "secondary" | "outline" | "ghost";
+  size?: "sm" | "lg";
+  className?: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+};
+
 //@ts-ignore
-export const Button = ({
+export const Button: React.FC<ButtonProps> = ({
   variant = "primary",
   size = "lg",
   className = "",
+  onClick,
   children,
   ...props
 }) => {
@@ -29,6 +38,7 @@ export const Button = ({
     <button
       //@ts-ignore
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
+      onClick={onClick}
       {...props}
     >
       {children}

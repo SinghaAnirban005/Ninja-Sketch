@@ -19,7 +19,6 @@ app.use(
   cors({
     origin: ["http://localhost:3000", "http://localhost:4000"],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
@@ -75,7 +74,7 @@ app.post("/signin", async (req, res) => {
 
   const registeredUser = await prismClient.user.findFirst({
     where: {
-      email: data.data.name,
+      email: data.data.email,
       password: data.data.password,
     },
   });
@@ -88,6 +87,7 @@ app.post("/signin", async (req, res) => {
 
   res.json({
     token: token,
+    message: "User logged in successfully",
   });
 });
 
@@ -126,8 +126,15 @@ app.post("/room", middleware, async (req, res) => {
   }
 });
 
-app.get("/chats/:roomId", async (req, res) => {
+app.get("/chats/:roomId", middleware, async (req, res) => {
   const roomId = Number(req.params.roomId);
+  //@ts-ignore
+  const userId = req.userId;
+
+  if (!userId) {
+    console.error("NO user exits");
+    return;
+  }
 
   const msgs = await prismClient.chat.findMany({
     where: {
@@ -141,6 +148,32 @@ app.get("/chats/:roomId", async (req, res) => {
 
   res.status(200).json({
     messages: msgs,
+  });
+});
+
+app.post("/signout", middleware, (req, res) => {
+  //@ts-ignore
+  const userId = req.userId;
+
+  if (!userId) {
+    res.status(401).json({
+      message: "User ID does not exist",
+    });
+    return;
+  }
+
+  const token = req.headers["authorization"]?.replace("Bearer ", "");
+
+  if (!token) {
+    res.status(401).json({
+      message: "Token does not exist",
+    });
+
+    return;
+  }
+
+  res.status(200).json({
+    message: "User logged out",
   });
 });
 
