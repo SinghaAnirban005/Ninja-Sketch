@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const token = localStorage.getItem("authToken");
 
   const router = useRouter();
 
@@ -51,6 +52,30 @@ export default function Dashboard() {
     }
   };
 
+  async function handleLogout() {
+    try {
+      const response = await axios.post(
+        `${HTTP_URL}/signout`,
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (response.statusText === "OK") {
+        router.push("/");
+        localStorage.removeItem("authToken");
+      }
+
+      // TODO -> TOAST MESSAGE FOR FAILURE TO LOGOUT
+    } catch (error) {
+      throw new Error((error as string) ?? "");
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
@@ -60,7 +85,7 @@ export default function Dashboard() {
   };
 
   const handleJoinRoom = (roomId: number) => {
-    console.log("Joining room:", roomId);
+    router.push(`/canvas/${roomId}`);
   };
 
   const handleCreateRoom = () => {
@@ -100,13 +125,22 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <Button
-              variant="primary"
-              onClick={handleCreateRoom}
-              className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white border-0 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300"
-            >
-              + Create Room
-            </Button>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                onClick={handleLogout}
+                className="text-red-400 border-red-400 hover:bg-red-500 hover:text-white transition-colors duration-300"
+              >
+                Logout
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleCreateRoom}
+                className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white border-0 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300"
+              >
+                + Create Room
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -223,7 +257,6 @@ export default function Dashboard() {
                       variant="outline"
                       size="sm"
                       className="w-full group-hover:border-cyan-500/50 group-hover:text-cyan-400 group-hover:bg-cyan-900/20 transition-all duration-300"
-                      onClick={() => router.push(`/canvas/${room.id}`)}
                     >
                       Enter Room
                     </Button>

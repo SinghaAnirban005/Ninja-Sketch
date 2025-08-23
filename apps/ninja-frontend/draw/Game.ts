@@ -79,6 +79,9 @@ export class Game {
         const parsedShape = JSON.parse(message.message);
         this.existingShapes.push(parsedShape.shape);
         this.clearCanvas();
+      } else if (message.type === "clear") {
+        this.existingShapes = [];
+        this.clearCanvas();
       }
     };
   }
@@ -183,6 +186,21 @@ export class Game {
       }),
     );
   };
+
+  clearAll() {
+    this.existingShapes = [];
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.ctx.fillStyle = "rgba(0, 0, 0, 1)";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.socket.send(
+      JSON.stringify({
+        type: "clear",
+        roomId: this.roomId,
+      }),
+    );
+  }
 
   mouseMoveHandler = (e: any) => {
     const x = e.clientX;

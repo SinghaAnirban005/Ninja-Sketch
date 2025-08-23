@@ -1,16 +1,17 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { WS_URL } from "@/config";
 import { Canvas } from "./Canvas";
 import axios from "axios";
+import { HTTP_URL } from "@/config";
 
 export function RoomCanvas({ roomId }: { roomId: string }) {
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
-    const ws = new WebSocket(
-      `${WS_URL}?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3NWMzNDNmOS03N2EyLTQ5MTMtYWY3MC02NmY3MzkxNWJjMzgiLCJpYXQiOjE3NTU5MzE3MTd9.dsyA2ksgc4Obv1BQljAPCH_AQ8Xse995ZoGMrU6zSPk`,
-    );
+    const ws = new WebSocket(`${WS_URL}?token=${authToken}`);
 
     ws.onopen = () => {
       setSocket(ws);
@@ -27,12 +28,9 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
   useEffect(() => {
     const getShapes = async () => {
       try {
-        const { data } = await axios.get(
-          `http://localhost:4000/chats/${roomId}`,
-          {
-            withCredentials: true,
-          },
-        );
+        const { data } = await axios.get(`${HTTP_URL}/chats/${roomId}`, {
+          withCredentials: true,
+        });
         console.log(data);
       } catch (err) {
         console.error("Error fetching shapes:", err);
@@ -46,5 +44,5 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
     return <div>Connecting to Server ...</div>;
   }
 
-  return <Canvas roomId={roomId} socket={socket} />;
+  return <Canvas roomId={roomId} socket={socket} authToken={authToken} />;
 }

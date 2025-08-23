@@ -1,15 +1,25 @@
 import { useEffect, useRef, useState } from "react";
-import { Pencil, Circle, Palette, RectangleHorizontal } from "lucide-react";
+import {
+  Pencil,
+  Circle,
+  Palette,
+  RectangleHorizontal,
+  Trash2,
+} from "lucide-react";
 import { Game } from "@/draw/Game";
+import axios from "axios";
+import { HTTP_URL } from "@/config";
 
 export type Tool = "pencil" | "circle" | "rect";
 
 export function Canvas({
   roomId,
   socket,
+  authToken,
 }: {
   roomId: string;
   socket: WebSocket;
+  authToken: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [game, setGame] = useState<Game>();
@@ -56,6 +66,9 @@ export function Canvas({
         style={{ display: "block" }}
       />
       <Toolbar
+        authToken={authToken}
+        roomId={roomId}
+        game={game as Game}
         setSelectedTool={setSelectedTool}
         selectedTool={selectedTool}
         selectedColor={selectedColor}
@@ -68,6 +81,9 @@ export function Canvas({
 }
 
 function Toolbar({
+  authToken,
+  roomId,
+  game,
   selectedTool,
   setSelectedTool,
   selectedColor,
@@ -75,6 +91,9 @@ function Toolbar({
   showColorPalette,
   setShowColorPalette,
 }: {
+  authToken: string;
+  roomId: string;
+  game: Game;
   selectedTool: Tool;
   setSelectedTool: (s: Tool) => void;
   selectedColor: string;
@@ -101,9 +120,23 @@ function Toolbar({
     "#808080",
   ];
 
+  const rID: number = Number(roomId);
+  const clearDrawings = async () => {
+    if (game) {
+      game.clearAll();
+      const res = await axios.delete(`${HTTP_URL}/chats/${rID}`, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      console.log(res);
+    }
+  };
+
   return (
     <>
-      {/* Color Palette */}
       {showColorPalette && (
         <div className="fixed bottom-32 left-1/2 transform -translate-x-1/2 bg-gray-900 backdrop-blur-lg border border-gray-700 rounded-2xl p-4 shadow-2xl">
           <div className="grid grid-cols-4 gap-3">
@@ -126,11 +159,9 @@ function Toolbar({
         </div>
       )}
 
-      {/* Main Toolbar */}
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2">
         <div className="bg-gray-900/90 backdrop-blur-lg border border-gray-700 rounded-2xl p-2 shadow-2xl">
           <div className="flex items-center gap-2">
-            {/* Drawing Tools */}
             <IconButton
               onClick={() => setSelectedTool("pencil")}
               activated={selectedTool === "pencil"}
@@ -150,10 +181,8 @@ function Toolbar({
               tooltip="Circle"
             />
 
-            {/* Separator */}
             <div className="w-px h-8 bg-gray-600 mx-1" />
 
-            {/* Color Selector */}
             <button
               onClick={() => setShowColorPalette(!showColorPalette)}
               className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 hover:bg-gray-800 border border-gray-700"
@@ -165,6 +194,13 @@ function Toolbar({
               />
               <Palette size={16} className="text-gray-300" />
             </button>
+
+            <IconButton
+              onClick={clearDrawings}
+              activated={false}
+              icon={<Trash2 size={20} />}
+              tooltip="Clear Canvas"
+            />
           </div>
         </div>
       </div>
