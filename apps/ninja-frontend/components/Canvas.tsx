@@ -1,71 +1,199 @@
 import { useEffect, useRef, useState } from "react";
-import { IconButton } from "./IconButton";
-import { Pencil, Circle, RectangleHorizontalIcon } from "lucide-react";
+import { Pencil, Circle, Palette, RectangleHorizontal } from "lucide-react";
 import { Game } from "@/draw/Game";
 
-export type Tool = "pencil" | "circle" | "rect"
+export type Tool = "pencil" | "circle" | "rect";
 
-export function Canvas({roomId, socket}: {
-    roomId: string,
-    socket: WebSocket
+export function Canvas({
+  roomId,
+  socket,
+}: {
+  roomId: string;
+  socket: WebSocket;
 }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [game, setGame] = useState<Game>();
+  const [selectedTool, setSelectedTool] = useState<Tool>("circle");
+  const [selectedColor, setSelectedColor] = useState("#ffffff");
+  const [showColorPalette, setShowColorPalette] = useState(false);
 
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [game, setGame] = useState<Game>()
-    const [selectedTool, setSelectedTool] = useState<Tool>("circle")
+  useEffect(() => {
+    game?.setTool(selectedTool);
+  }, [selectedTool, game]);
 
-    useEffect(() => {
-        game?.setTool(selectedTool)
-    }, [selectedTool, game])
+  useEffect(() => {
+    game?.setColor(selectedColor);
+  }, [selectedColor, game]);
 
-    useEffect(() => {
-        // const canvas = canvasRef.current;
-        // if(canvas == null) {
-        // return
-        // }
-        // initDraw(canvas, socket, roomId)
-        if(canvasRef.current) {
-            const g = new Game(canvasRef.current, roomId, socket)
-            setGame(g)
+  useEffect(() => {
+    // const canvas = canvasRef.current;
+    // if(canvas == null) {
+    // return
+    // }
+    // initDraw(canvas, socket, roomId)
+    if (canvasRef.current) {
+      const g = new Game(canvasRef.current, roomId, socket);
+      setGame(g);
 
-            return () => {
-                g.destroy()
-            }
-        }
-    }, [canvasRef]);
+      return () => {
+        g.destroy();
+      };
+    }
+  }, [canvasRef]);
 
-    return  <div style={{
+  return (
+    <div
+      style={{
         height: "100vh",
-        overflow: "hidden"
-    }}>
-        <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight}></canvas>
-        <Topbar setSelectedTool={setSelectedTool} selectedTool={selectedTool} />
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        width={window.innerWidth}
+        height={window.innerHeight}
+        style={{ display: "block" }}
+      />
+      <Toolbar
+        setSelectedTool={setSelectedTool}
+        selectedTool={selectedTool}
+        selectedColor={selectedColor}
+        setSelectedColor={setSelectedColor}
+        showColorPalette={showColorPalette}
+        setShowColorPalette={setShowColorPalette}
+      />
     </div>
+  );
 }
 
-function Topbar({selectedTool, setSelectedTool}: {
-    selectedTool: Tool,
-    setSelectedTool: (s: Tool) => void
+function Toolbar({
+  selectedTool,
+  setSelectedTool,
+  selectedColor,
+  setSelectedColor,
+  showColorPalette,
+  setShowColorPalette,
+}: {
+  selectedTool: Tool;
+  setSelectedTool: (s: Tool) => void;
+  selectedColor: string;
+  setSelectedColor: (color: string) => void;
+  showColorPalette: boolean;
+  setShowColorPalette: (show: boolean) => void;
 }) {
-    return <div style={{
-        position: "fixed",
-        top: 10,
-        left: 10
-    }}>
-        <div className="flex gap-t">
-            <IconButton 
+  const colors = [
+    "#ffffff",
+    "#ff0000",
+    "#00ff00",
+    "#0000ff",
+    "#ffff00",
+    "#ff00ff",
+    "#00ffff",
+    "#ffa500",
+    "#800080",
+    "#008000",
+    "#000080",
+    "#800000",
+    "#808000",
+    "#008080",
+    "#c0c0c0",
+    "#808080",
+  ];
+
+  return (
+    <>
+      {/* Color Palette */}
+      {showColorPalette && (
+        <div className="fixed bottom-32 left-1/2 transform -translate-x-1/2 bg-gray-900 backdrop-blur-lg border border-gray-700 rounded-2xl p-4 shadow-2xl">
+          <div className="grid grid-cols-4 gap-3">
+            {colors.map((color) => (
+              <button
+                key={color}
                 onClick={() => {
-                    setSelectedTool("pencil")
+                  setSelectedColor(color);
+                  setShowColorPalette(false);
                 }}
-                activated={selectedTool === "pencil"}
-                icon={<Pencil />}
-            />
-            <IconButton onClick={() => {
-                setSelectedTool("rect")
-            }} activated={selectedTool === "rect"} icon={<RectangleHorizontalIcon />} ></IconButton>
-            <IconButton onClick={() => {
-                setSelectedTool("circle")
-            }} activated={selectedTool === "circle"} icon={<Circle />}></IconButton>
+                className={`w-10 h-10 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
+                  selectedColor === color
+                    ? "border-blue-400 shadow-lg shadow-blue-400/50"
+                    : "border-gray-600 hover:border-gray-400"
+                }`}
+                style={{ backgroundColor: color }}
+              />
+            ))}
+          </div>
         </div>
-    </div>
+      )}
+
+      {/* Main Toolbar */}
+      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2">
+        <div className="bg-gray-900/90 backdrop-blur-lg border border-gray-700 rounded-2xl p-2 shadow-2xl">
+          <div className="flex items-center gap-2">
+            {/* Drawing Tools */}
+            <IconButton
+              onClick={() => setSelectedTool("pencil")}
+              activated={selectedTool === "pencil"}
+              icon={<Pencil size={20} />}
+              tooltip="Pencil"
+            />
+            <IconButton
+              onClick={() => setSelectedTool("rect")}
+              activated={selectedTool === "rect"}
+              icon={<RectangleHorizontal size={20} />}
+              tooltip="Rectangle"
+            />
+            <IconButton
+              onClick={() => setSelectedTool("circle")}
+              activated={selectedTool === "circle"}
+              icon={<Circle size={20} />}
+              tooltip="Circle"
+            />
+
+            {/* Separator */}
+            <div className="w-px h-8 bg-gray-600 mx-1" />
+
+            {/* Color Selector */}
+            <button
+              onClick={() => setShowColorPalette(!showColorPalette)}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 hover:bg-gray-800 border border-gray-700"
+              title="Color Palette"
+            >
+              <div
+                className="w-5 h-5 rounded-full border border-gray-500"
+                style={{ backgroundColor: selectedColor }}
+              />
+              <Palette size={16} className="text-gray-300" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function IconButton({
+  onClick,
+  activated,
+  icon,
+  tooltip,
+}: {
+  onClick: () => void;
+  activated: boolean;
+  icon: React.ReactNode;
+  tooltip: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={tooltip}
+      className={`p-3 rounded-xl transition-all duration-200 border ${
+        activated
+          ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/30"
+          : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:border-gray-600"
+      }`}
+    >
+      {icon}
+    </button>
+  );
 }
