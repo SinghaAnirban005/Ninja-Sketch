@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { HTTP_URL } from "@/config";
+import { useRouter } from "next/navigation";
 
 interface AuthPageProps {
   isSignin: boolean;
@@ -15,6 +16,8 @@ export function AuthPage({ isSignin }: AuthPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +44,10 @@ export function AuthPage({ isSignin }: AuthPageProps) {
         if (isSignin) {
           localStorage.setItem("authToken", data.token);
           setSuccess("Signed in successfully!");
+          router.push("/home");
         } else {
           setSuccess("Account created successfully!");
+          router.push("/signin");
         }
       } else {
         setError(data.message || "An error occurred");
