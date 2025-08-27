@@ -17,9 +17,7 @@
     "dev": {
       "cache": false,
       "persistent": true
-    }
-  },
-  "pipeline": {
+    },
     "@repo/backend-common#build": {
       "outputs": ["dist/**"]
     },
