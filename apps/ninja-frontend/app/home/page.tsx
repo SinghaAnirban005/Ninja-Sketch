@@ -56,15 +56,14 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={handleClose}
       ></div>
 
-      {/* Dialog */}
       <Card className="relative w-full max-w-md p-6 border-cyan-500/30 bg-gray-900/90 backdrop-blur-md">
-        {/* Header */}
+
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-white">Create New Room</h2>
           <button
@@ -81,7 +80,6 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
           </button>
         </div>
 
-        {/* Form Content */}
         <div className="space-y-4">
           <div>
             <label
@@ -111,14 +109,12 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
             </div>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="text-red-400 text-sm bg-red-900/20 p-3 rounded-lg border border-red-500/20">
               {error}
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex items-center justify-end space-x-3 pt-2">
             <Button
               variant="ghost"
@@ -442,7 +438,6 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {/* Create Room Dialog */}
       <CreateRoomDialog
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
