@@ -18,5 +18,26 @@
       "cache": false,
       "persistent": true
     }
+  },
+  "pipeline": {
+    "@repo/backend-common#build": {
+      "outputs": ["dist/**"]
+    },
+    "@repo/common#build": {
+      "outputs": ["dist/**"]
+    },
+    "@repo/db#build": {
+      "outputs": ["dist/**"]
+    },
+    "backend#build": {
+      "outputs": ["dist/**"]
+    },
+    "ws-backend#build": {
+      "outputs": ["dist/**"]
+    },
+    "ninja-frontend#build": {
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["DISABLE_ESLINT_PLUGIN=true"]
+    }
   }
 }
