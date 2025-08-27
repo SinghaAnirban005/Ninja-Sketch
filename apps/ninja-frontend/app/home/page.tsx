@@ -24,8 +24,8 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
   const [roomName, setRoomName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState("");
-
-  const handleSubmit = async (e: Event) => {
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!roomName.trim()) {
       setError("Room name is required");
@@ -40,7 +40,6 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
       setRoomName("");
       onClose();
     } catch (err) {
-      // eslint-disable-next-line react/no-unescaped-entities
       setError(`Failed to create room. Please try again :: ${err}`);
     } finally {
       setIsCreating(false);
@@ -57,14 +56,12 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={handleClose}
       ></div>
 
       <Card className="relative w-full max-w-md p-6 border-cyan-500/30 bg-gray-900/90 backdrop-blur-md">
-
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-white">Create New Room</h2>
           <button
@@ -152,31 +149,39 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const token = localStorage.getItem("authToken");
+  const [token, setToken] = useState<string | null>(null);
 
   const router = useRouter();
 
   useEffect(() => {
-    fetchRooms();
+    if (typeof window !== "undefined") {
+      const authToken = localStorage.getItem("authToken");
+      setToken(authToken);
+    }
   }, []);
 
+  useEffect(() => {
+    if (token) {
+      fetchRooms();
+    }
+  }, [token]);
+
   const fetchRooms = async () => {
+    if (!token) return;
+    
     try {
       setIsLoading(true);
-
-      const authToken = localStorage.getItem("authToken") ?? "";
 
       const response = await axios.get(`${HTTP_URL}/rooms`, {
         withCredentials: true,
         headers: {
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       console.log(response);
 
       const userRooms = response.data;
-
       setRooms(userRooms.rooms);
     } catch (err) {
       setError(`Failed to load rooms ${err}`);
@@ -187,6 +192,8 @@ export default function Dashboard() {
   };
 
   const handleCreateRoomSubmit = async (roomName: string) => {
+    if (!token) return;
+    
     const res = await axios.post(
       `${HTTP_URL}/room`,
       {
@@ -200,7 +207,7 @@ export default function Dashboard() {
       },
     );
 
-    console.log("response afer room ", res);
+    console.log("response after room ", res);
 
     if (res.statusText === "OK") {
       await fetchRooms();
@@ -208,6 +215,8 @@ export default function Dashboard() {
   };
 
   async function handleLogout() {
+    if (!token) return;
+    
     try {
       const response = await axios.post(
         `${HTTP_URL}/signout`,
@@ -221,13 +230,13 @@ export default function Dashboard() {
       );
 
       if (response.statusText === "OK") {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("authToken");
+        }
         router.push("/");
-        localStorage.removeItem("authToken");
       }
-
-      // TODO -> TOAST MESSAGE FOR FAILURE TO LOGOUT
     } catch (error) {
-      throw new Error((error as string) ?? "");
+      throw new Error((error as Error).message);
     }
   }
 
@@ -267,7 +276,6 @@ export default function Dashboard() {
           }}
         ></div>
       </div>
-
       <div className="relative z-10 container mx-auto px-6 py-8">
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
