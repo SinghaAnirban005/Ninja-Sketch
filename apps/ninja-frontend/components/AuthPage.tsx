@@ -53,7 +53,7 @@ export function AuthPage({ isSignin }: AuthPageProps) {
         setError(data.message || "An error occurred");
       }
     } catch (err) {
-      setError("Network error. Please try again.");
+      setError(`Network error. Please try again :: ${err}`);
     } finally {
       setIsLoading(false);
     }

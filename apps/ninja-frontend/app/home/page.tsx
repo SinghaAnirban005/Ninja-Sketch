@@ -25,7 +25,7 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: Event) => {
     e.preventDefault();
     if (!roomName.trim()) {
       setError("Room name is required");
@@ -40,7 +40,8 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
       setRoomName("");
       onClose();
     } catch (err) {
-      setError("Failed to create room. Please try again.");
+      // eslint-disable-next-line react/no-unescaped-entities
+      setError(`Failed to create room. Please try again :: ${err}`);
     } finally {
       setIsCreating(false);
     }
@@ -178,7 +179,7 @@ export default function Dashboard() {
 
       setRooms(userRooms.rooms);
     } catch (err) {
-      setError("Failed to load rooms");
+      setError(`Failed to load rooms ${err}`);
       setIsLoading(false);
     } finally {
       setIsLoading(false);
