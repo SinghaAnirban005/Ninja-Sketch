@@ -144,7 +144,7 @@ function App() {
               </h3>
               <p className="text-gray-400 leading-relaxed">
                 Multiple users can edit the same canvas simultaneously. See
-                who's drawing what in real-time.
+                who&#39;s drawing what in real-time.
               </p>
             </Card>
 
