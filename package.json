@@ -7,7 +7,8 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "build:backend": "cd apps/backend && tsc -b",
-    "start:backend": "cd apps/backend && node dist/index.js"
+    "start:backend": "cd apps/backend && node dist/index.js",
+    "start:ws": "cd apps/ws-backend && node dist/index.js"
   },
   "devDependencies": {
     "prettier": "^3.5.0",
