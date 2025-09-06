@@ -17,7 +17,11 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:4000", "https://ninja-sketch-8vy9.onrender.com"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:4000",
+      "https://ninja-sketch-8vy9.onrender.com",
+    ],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   }),

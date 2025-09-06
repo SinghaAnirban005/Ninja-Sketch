@@ -24,7 +24,7 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
   const [roomName, setRoomName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState("");
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!roomName.trim()) {
@@ -168,7 +168,7 @@ export default function Dashboard() {
 
   const fetchRooms = async () => {
     if (!token) return;
-    
+
     try {
       setIsLoading(true);
 
@@ -193,7 +193,7 @@ export default function Dashboard() {
 
   const handleCreateRoomSubmit = async (roomName: string) => {
     if (!token) return;
-    
+
     const res = await axios.post(
       `${HTTP_URL}/room`,
       {
@@ -217,8 +217,8 @@ export default function Dashboard() {
   async function handleLogout() {
     if (!token) return;
 
-    console.log('Logging out')
-    
+    console.log("Logging out");
+
     try {
       const response = await axios.post(
         `${HTTP_URL}/signout`,
@@ -232,9 +232,7 @@ export default function Dashboard() {
       );
 
       if (response.statusText === "OK") {
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("authToken");
-        }
+        localStorage.removeItem("authToken");
         router.push("/");
       }
     } catch (error) {

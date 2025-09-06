@@ -5,7 +5,7 @@ export default async function CanvasPage({
 }: {
   params: Promise<{
     roomId: string;
-  }>
+  }>;
 }) {
   const { roomId } = await params;
 
