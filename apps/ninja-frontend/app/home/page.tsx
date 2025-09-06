@@ -216,6 +216,8 @@ export default function Dashboard() {
 
   async function handleLogout() {
     if (!token) return;
+
+    console.log('Logging out')
     
     try {
       const response = await axios.post(
