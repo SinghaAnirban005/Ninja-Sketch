@@ -4,7 +4,7 @@ import axios from "axios";
 export async function getExistingShapes(roomId: string) {
   const token = localStorage.getItem("authToken") ?? "";
 
-  const res = await axios.get(`${HTTP_URL}/chats/${roomId}`, {
+  const res = await axios.get(`${HTTP_URL}/api/v1/chats/${roomId}`, {
     withCredentials: true,
     headers: {
       Authorization: token,

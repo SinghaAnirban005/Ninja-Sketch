@@ -28,7 +28,7 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
   useEffect(() => {
     const getShapes = async () => {
       try {
-        const { data } = await axios.get(`${HTTP_URL}/chats/${roomId}`, {
+        const { data } = await axios.get(`${HTTP_URL}/api/v1/chats/${roomId}`, {
           withCredentials: true,
         });
         console.log(data);

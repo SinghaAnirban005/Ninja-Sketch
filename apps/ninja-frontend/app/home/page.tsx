@@ -175,7 +175,7 @@ export default function Dashboard() {
     try {
       setIsLoading(true);
 
-      const response = await axios.get(`${HTTP_URL}/rooms`, {
+      const response = await axios.get(`${HTTP_URL}/api/v1/rooms`, {
         withCredentials: true,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -198,7 +198,7 @@ export default function Dashboard() {
     if (!token) return;
 
     const res = await axios.post(
-      `${HTTP_URL}/room`,
+      `${HTTP_URL}/api/v1/room`,
       {
         name: roomName,
       },
@@ -224,7 +224,7 @@ export default function Dashboard() {
 
     try {
       const response = await axios.post(
-        `${HTTP_URL}/signout`,
+        `${HTTP_URL}/api/v1/signout`,
         {},
         {
           withCredentials: true,

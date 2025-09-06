@@ -108,7 +108,7 @@ function clearCanvas(
 }
 
 async function getExistingShapes(roomId: string) {
-  const res = await axios.get(`${HTTP_URL}/chats/${roomId}`, {
+  const res = await axios.get(`${HTTP_URL}/api/v1/chats/${roomId}`, {
     withCredentials: true,
     // headers: {
     //   "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjY2Y5ZGNjNC1lMDQ0LTQ1YzAtOWM5Zi0xY2U0NTkxMGQwZDYiLCJpYXQiOjE3NDM0Mzc5OTZ9.4nm94SxacNFnuk_09t9iSotMQZ6iAaQNES1w8QLd0HQ"

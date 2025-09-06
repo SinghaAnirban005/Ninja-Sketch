@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/middleware.ts"],"version":"5.9.2"}
+{"root":["./src/index.ts","./src/Handlers/Auth.ts","./src/Handlers/Chats.ts","./src/Handlers/Room.ts","./src/Middlewares/middleware.ts"],"version":"5.9.2"}
