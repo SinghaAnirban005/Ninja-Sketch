@@ -24,7 +24,6 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
   const [roomName, setRoomName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState("");
-
   useEffect(() => {
     console.log("render on closing");
   }, [onClose]);
@@ -214,9 +213,7 @@ export default function Dashboard() {
     console.log("response after room ", res);
 
     if (res.status === 200 || res.status === 201) {
-      const newRoom = res.data.room;
-      setRooms((prev) => [...prev, newRoom]);
-      fetchRooms();
+      await fetchRooms();
     }
   };
 
