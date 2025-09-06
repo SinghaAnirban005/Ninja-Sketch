@@ -26,7 +26,7 @@ export function AuthPage({ isSignin }: AuthPageProps) {
     setSuccess("");
 
     try {
-      const endpoint = isSignin ? "/signin" : "/signup";
+      const endpoint = isSignin ? "/api/v1/signin" : "/api/v1/signup";
       const payload = isSignin
         ? { email, password }
         : { email, password, name };

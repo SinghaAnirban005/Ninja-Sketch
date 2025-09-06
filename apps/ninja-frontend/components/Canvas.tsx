@@ -124,7 +124,7 @@ function Toolbar({
   const clearDrawings = async () => {
     if (game) {
       game.clearAll();
-      const res = await axios.delete(`${HTTP_URL}/chats/${rID}`, {
+      const res = await axios.delete(`${HTTP_URL}/api/v1/chats/${rID}`, {
         withCredentials: true,
         headers: {
           Authorization: `Bearer ${authToken}`,
