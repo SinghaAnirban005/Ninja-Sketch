@@ -25,6 +25,10 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    console.log("render on closing");
+  }, [onClose]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!roomName.trim()) {
@@ -209,8 +213,10 @@ export default function Dashboard() {
 
     console.log("response after room ", res);
 
-    if (res.statusText === "OK") {
-      await fetchRooms();
+    if (res.status === 200 || res.status === 201) {
+      const newRoom = res.data.room;
+      setRooms((prev) => [...prev, newRoom]);
+      fetchRooms();
     }
   };
 
