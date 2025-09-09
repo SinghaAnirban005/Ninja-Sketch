@@ -4,4 +4,4 @@
 
 ## Demo
 
-Here's a link to my demo video: [My Demo Video](./ninja-sketch%20demo.mp4)
+Here's a link to my demo video: [My Demo Video](https://vimeo.com/1117194907?share=copy)
