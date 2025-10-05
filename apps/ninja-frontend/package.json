@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "DISABLE_ESLINT_PLUGIN=true next build",
     "strict:build": "next build",
-    "start": "next start",
+    "start": "next start -p ${PORT:-3000}",
     "lint": "next lint"
   },
   "dependencies": {
