@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { WS_URL } from "@/config";
 import { Canvas } from "./Canvas";
-import axios from "axios";
-import { HTTP_URL } from "@/config";
 
 export function RoomCanvas({ roomId }: { roomId: string }) {
   const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -23,21 +21,14 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
         }),
       );
     };
-  }, []);
 
-  useEffect(() => {
-    const getShapes = async () => {
-      try {
-        const { data } = await axios.get(`${HTTP_URL}/api/v1/chats/${roomId}`, {
-          withCredentials: true,
-        });
-        console.log(data);
-      } catch (err) {
-        console.error("Error fetching shapes:", err);
+    return () => {
+      if(ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: "leave_room"
+        }))
       }
-    };
-
-    getShapes();
+    }
   }, []);
 
   if (!socket) {

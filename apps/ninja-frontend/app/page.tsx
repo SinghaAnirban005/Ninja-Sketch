@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 function App() {
   const router = useRouter();
@@ -238,18 +239,18 @@ function App() {
               </span>
             </div>
             <div className="flex items-center space-x-6">
-              <a
-                href="https://github.com/SinghaAnirban005"
+              <Link
+                href="https://github.com/SinghaAnirban005/Ninja-Sketch"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <Github className="h-5 w-5" />
-              </a>
-              <a
+              </Link>
+              <Link
                 href="#"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <Download className="h-5 w-5" />
-              </a>
+              </Link>
               <Button variant="ghost" size="sm">
                 Privacy
               </Button>
