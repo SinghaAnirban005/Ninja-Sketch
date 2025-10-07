@@ -58,6 +58,15 @@ AuthHandler.post("/signin", async (req: Request, res: Response) => {
       password: data.data.password,
     },
   });
+
+  if(!registeredUser){
+    res.status(400).json({
+      message: "No User exits"
+    })
+
+    return
+  }
+
   const token = jwt.sign(
     {
       userId: registeredUser?.id,
