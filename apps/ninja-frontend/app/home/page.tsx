@@ -20,10 +20,17 @@ type RoomParams = {
   onCreateRoom: (arg: string) => void;
 };
 
+type JoinRoomParams = {
+  isOpen: boolean;
+  onClose: () => void;
+  onJoinRoom: (arg: string) => void;
+};
+
 const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
   const [roomName, setRoomName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState("");
+
   useEffect(() => {
     console.log("render on closing");
   }, [onClose]);
@@ -147,11 +154,135 @@ const CreateRoomDialog = ({ isOpen, onClose, onCreateRoom }: RoomParams) => {
   );
 };
 
+const JoinRoomDialog = ({ isOpen, onClose, onJoinRoom }: JoinRoomParams) => {
+  const [joinCode, setJoinCode] = useState("");
+  const [isJoining, setIsJoining] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!joinCode.trim()) {
+      setError("Join code is required");
+      return;
+    }
+
+    setIsJoining(true);
+    setError("");
+
+    try {
+      await onJoinRoom(joinCode.trim());
+      setJoinCode("");
+      onClose();
+    } catch (err) {
+      setError(`Failed to join room. Please try again :: ${err}`);
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
+  const handleClose = () => {
+    setJoinCode("");
+    setError("");
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={handleClose}
+      ></div>
+
+      <Card className="relative w-full max-w-md p-6 border-purple-500/30 bg-gray-900/90 backdrop-blur-md">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-white">Join Room</h2>
+          <button
+            onClick={handleClose}
+            className="text-gray-400 hover:text-white transition-colors duration-200"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label
+              htmlFor="joinCode"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
+              Join Code
+            </label>
+            <input
+              id="joinCode"
+              type="text"
+              placeholder="Enter room join code..."
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
+              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200"
+              autoFocus
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              Enter the code provided by the room admin
+            </div>
+          </div>
+
+          {error && (
+            <div className="text-red-400 text-sm bg-red-900/20 p-3 rounded-lg border border-red-500/20">
+              {error}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end space-x-3 pt-2">
+            <Button
+              variant="ghost"
+              onClick={handleClose}
+              disabled={isJoining}
+              className="text-gray-400 hover:text-white hover:bg-gray-800/50"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              disabled={isJoining || !joinCode.trim()}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isJoining ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Joining...</span>
+                </div>
+              ) : (
+                "Join Room"
+              )}
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
 export default function Dashboard() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null);
 
   const router = useRouter();
@@ -181,7 +312,7 @@ export default function Dashboard() {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       const userRooms = response.data;
       setRooms(userRooms.rooms);
     } catch (err) {
@@ -198,7 +329,7 @@ export default function Dashboard() {
     const res = await axios.post(
       `${HTTP_URL}/api/v1/room`,
       {
-        name: roomName
+        name: roomName,
       },
       {
         withCredentials: true,
@@ -212,6 +343,34 @@ export default function Dashboard() {
 
     if (res.status === 200 || res.status === 201) {
       await fetchRooms();
+    }
+  };
+
+  const handleJoinRoomSubmit = async (joinCode: string) => {
+    if (!token) return;
+
+    try {
+      const response = await axios.post(
+        `${HTTP_URL}/api/v1/room/join`,
+        {
+          joinCode: joinCode,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      console.log("Join room response:", response);
+
+      // If successful, navigate to the room
+      if (response.data && response.data.roomId) {
+        router.push(`/canvas/${response.data.roomId}`);
+      }
+    } catch (err) {
+      throw new Error(`Failed to join room: ${err}`);
     }
   };
 
@@ -249,12 +408,16 @@ export default function Dashboard() {
     });
   };
 
-  const handleJoinRoom = (roomId: number) => {
+  const handleJoinExistingRoom = (roomId: number) => {
     router.push(`/canvas/${roomId}`);
   };
 
   const handleCreateRoom = () => {
     setIsCreateDialogOpen(true);
+  };
+
+  const handleJoinRoom = () => {
+    setIsJoinDialogOpen(true);
   };
 
   return (
@@ -296,6 +459,13 @@ export default function Dashboard() {
                 className="text-red-400 border-red-400 hover:bg-red-500 hover:text-white transition-colors duration-300"
               >
                 Logout
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleJoinRoom}
+                className="text-purple-400 border-purple-400 hover:bg-purple-500 hover:text-white transition-colors duration-300"
+              >
+                Join Room
               </Button>
               <Button
                 variant="primary"
@@ -363,11 +533,17 @@ export default function Dashboard() {
               <Card className="p-12 text-center border-gray-700/50">
                 <div className="text-gray-400 text-lg mb-4">No rooms yet</div>
                 <div className="text-gray-500 mb-6">
-                  Create your first drawing room to get started
+                  Create your first drawing room or join an existing one to get
+                  started
                 </div>
-                <Button variant="primary" onClick={handleCreateRoom}>
-                  Create Your First Room
-                </Button>
+                <div className="flex gap-4 justify-center">
+                  <Button variant="outline" onClick={handleJoinRoom}>
+                    Join Room
+                  </Button>
+                  <Button variant="primary" onClick={handleCreateRoom}>
+                    Create Your First Room
+                  </Button>
+                </div>
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -375,7 +551,7 @@ export default function Dashboard() {
                   <Card
                     key={room.id}
                     className="group p-6 hover:border-cyan-500/40 hover:bg-gray-800/60 transition-all duration-300 cursor-pointer transform hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20"
-                    onClick={() => handleJoinRoom(room.id)}
+                    onClick={() => handleJoinExistingRoom(room.id)}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -433,25 +609,46 @@ export default function Dashboard() {
       </div>
 
       <div className="fixed bottom-8 right-8 md:hidden">
-        <Button
-          variant="primary"
-          onClick={handleCreateRoom}
-          className="w-14 h-14 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300"
-        >
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </Button>
+        <div className="flex flex-col gap-4">
+          <Button
+            variant="primary"
+            onClick={handleJoinRoom}
+            className="w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300"
+          >
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M10 3a1 1 0 00-1 1v5H4a1 1 0 100 2h5v5a1 1 0 102 0v-5h5a1 1 0 100-2h-5V4a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleCreateRoom}
+            className="w-14 h-14 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300"
+          >
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </Button>
+        </div>
       </div>
 
       <CreateRoomDialog
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
         onCreateRoom={handleCreateRoomSubmit}
+      />
+
+      <JoinRoomDialog
+        isOpen={isJoinDialogOpen}
+        onClose={() => setIsJoinDialogOpen(false)}
+        onJoinRoom={handleJoinRoomSubmit}
       />
     </div>
   );

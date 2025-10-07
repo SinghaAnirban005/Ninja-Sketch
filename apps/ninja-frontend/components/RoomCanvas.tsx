@@ -23,12 +23,14 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
     };
 
     return () => {
-      if(ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-          type: "leave_room"
-        }))
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(
+          JSON.stringify({
+            type: "leave_room",
+          }),
+        );
       }
-    }
+    };
   }, []);
 
   if (!socket) {

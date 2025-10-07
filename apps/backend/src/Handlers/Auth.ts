@@ -59,12 +59,12 @@ AuthHandler.post("/signin", async (req: Request, res: Response) => {
     },
   });
 
-  if(!registeredUser){
+  if (!registeredUser) {
     res.status(400).json({
-      message: "No User exits"
-    })
+      message: "No User exits",
+    });
 
-    return
+    return;
   }
 
   const token = jwt.sign(

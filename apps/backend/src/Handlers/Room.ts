@@ -76,39 +76,89 @@ RoomRouter.get("/rooms", middleware, async (req: Request, res: Response) => {
   return;
 });
 
-RoomRouter.post("/room-detail", middleware, async(req: Request, res: Response) => {
+RoomRouter.post(
+  "/room-detail",
+  middleware,
+  async (req: Request, res: Response) => {
+    const { id } = req.body;
+    //@ts-ignore
+    const userId = req.userId;
 
-  const { id } = req.body
-  //@ts-ignore
-  const userId = req.userId
+    if (!userId) {
+      res.status(400).json({
+        message: "No user found",
+      });
 
-  if(!userId){
-    res.status(400).json({
-      message: "No user found"
-    })
-
-    return
-  }
-
-  const room = await prismClient.room.findUnique({
-    where: {
-      id: id,
-      adminId: userId
+      return;
     }
-  })
 
-  if(!room){
-    res.status(400).json({
-      message: "Room does not exist"
-    })
+    const room = await prismClient.room.findUnique({
+      where: {
+        id: id,
+        adminId: userId,
+      },
+    });
 
-    return
-  }
+    if (!room) {
+      res.status(400).json({
+        message: "Room does not exist",
+      });
 
-  res.status(200).json({
-    message: "Fetched room details",
-    joinCode: room.joinId
-  })
+      return;
+    }
 
-  return
-})
+    res.status(200).json({
+      message: "Fetched room details",
+      joinCode: room.joinId,
+    });
+
+    return;
+  },
+);
+
+RoomRouter.post(
+  "/room/join",
+  middleware,
+  async (req: Request, res: Response) => {
+    //@ts-ignore
+    const userId = req.userId;
+    if (!userId) {
+      res.status(400).json({
+        message: "No user ID",
+      });
+
+      return;
+    }
+
+    const { joinCode } = req.body;
+    if (!joinCode) {
+      res.status(400).json({
+        message: "JOIN CODE missing",
+      });
+
+      return;
+    }
+
+    const valid = await prismClient.room.findUnique({
+      where: {
+        joinId: joinCode,
+      },
+    });
+
+    if (!valid) {
+      res.status(400).json({
+        message: "Not valid code",
+      });
+
+      return;
+    }
+
+    res.status(200).json({
+      message: "Valid code",
+      valid: true,
+      roomId: valid.id,
+    });
+
+    return;
+  },
+);

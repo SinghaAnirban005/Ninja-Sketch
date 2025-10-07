@@ -60,7 +60,6 @@ export function Canvas({
         position: "relative",
       }}
     >
-
       <ShareButton roomId={Number(roomId)} authToken={authToken} />
 
       <canvas
