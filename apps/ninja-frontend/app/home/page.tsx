@@ -181,9 +181,7 @@ export default function Dashboard() {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      console.log(response);
-
+      
       const userRooms = response.data;
       setRooms(userRooms.rooms);
     } catch (err) {
@@ -200,7 +198,7 @@ export default function Dashboard() {
     const res = await axios.post(
       `${HTTP_URL}/api/v1/room`,
       {
-        name: roomName,
+        name: roomName
       },
       {
         withCredentials: true,

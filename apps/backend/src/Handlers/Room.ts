@@ -23,6 +23,7 @@ RoomRouter.post("/room", middleware, async (req: Request, res: Response) => {
     const room = await prismClient.room.create({
       data: {
         slug: data.data.name,
+        joinId: crypto.randomUUID(),
         adminId: userId,
       },
     });
@@ -74,3 +75,40 @@ RoomRouter.get("/rooms", middleware, async (req: Request, res: Response) => {
 
   return;
 });
+
+RoomRouter.post("/room-detail", middleware, async(req: Request, res: Response) => {
+
+  const { id } = req.body
+  //@ts-ignore
+  const userId = req.userId
+
+  if(!userId){
+    res.status(400).json({
+      message: "No user found"
+    })
+
+    return
+  }
+
+  const room = await prismClient.room.findUnique({
+    where: {
+      id: id,
+      adminId: userId
+    }
+  })
+
+  if(!room){
+    res.status(400).json({
+      message: "Room does not exist"
+    })
+
+    return
+  }
+
+  res.status(200).json({
+    message: "Fetched room details",
+    joinCode: room.joinId
+  })
+
+  return
+})

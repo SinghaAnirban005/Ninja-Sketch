@@ -9,6 +9,7 @@ import {
 import { Game } from "@/draw/Game";
 import axios from "axios";
 import { HTTP_URL } from "@/config";
+import ShareButton from "./ShareButton";
 
 export type Tool = "pencil" | "circle" | "rect";
 
@@ -59,6 +60,9 @@ export function Canvas({
         position: "relative",
       }}
     >
+
+      <ShareButton roomId={Number(roomId)} authToken={authToken} />
+
       <canvas
         ref={canvasRef}
         width={window.innerWidth}
