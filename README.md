@@ -5,3 +5,7 @@
 ## Demo
 
 Here's a link to my demo video: [My Demo Video](https://vimeo.com/1117194907?share=copy)
+
+## Architecture
+
+<img width="1553" height="689" alt="image" src="https://github.com/user-attachments/assets/f8ece9f0-3b49-4d79-8197-c2e4589e6be4" />
